@@ -182,22 +182,10 @@
 			}, 10);
 		}
 
-		// Logic to skip the cinematic loading screen if they opened the app recently (within 2 hours)
-		const lastLoad = localStorage.getItem('lunddrenLastLoad');
-		const now = Date.now();
-		const twoHours = 2 * 60 * 60 * 1000;
-
-		if (lastLoad && (now - parseInt(lastLoad, 10)) < twoHours) {
-			// Skip the loading animation entirely
-			overlay.style.display = 'none';
-		} else {
-			// First time loading (or expired), show animation and set timestamp
-			localStorage.setItem('lunddrenLastLoad', now.toString());
-			// Automatically hide the cinematic loading screen after 3.5 seconds
-			setTimeout(() => {
-				hideOverlay();
-			}, 3500);
-		}
+		// Automatically hide the cinematic loading screen after 3.5 seconds
+		setTimeout(() => {
+			hideOverlay();
+		}, 3500);
 
 		// If the user clicks while the loading screen is up, force fullscreen early
 		overlay.addEventListener('click', function () {
@@ -205,51 +193,20 @@
 			hideOverlay();
 		});
 
-		// --- MOBILE FULLSCREEN ENFORCER ---
-		const enforcer = document.createElement('div');
-		enforcer.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; z-index:999; background:transparent; display:none;';
-		document.body.appendChild(enforcer);
-
-		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-
-		function manageEnforcer() {
+		// Fallback: Catch any rogue clicks/touches on the wrapper body to force fullscreen later
+		document.body.addEventListener('click', function (e) {
 			const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
-			if (isMobile) {
-				if (!isFullscreen) {
-					// Block touches to iframe and force them to hit the enforcer first
-					enforcer.style.display = 'block';
-				} else {
-					// Unblock, allow interacting with the app
-					enforcer.style.display = 'none';
-				}
+			if (!isFullscreen) {
+				goFullscreen();
 			}
-		}
+		}, true);
 
-		// Initial setup
-		manageEnforcer();
-
-		// Whenever they enter or exit fullscreen, or the window resizes, check the state
-		document.addEventListener('fullscreenchange', manageEnforcer);
-		document.addEventListener('webkitfullscreenchange', manageEnforcer);
-		document.addEventListener('mozfullscreenchange', manageEnforcer);
-		document.addEventListener('MSFullscreenChange', manageEnforcer);
-		window.addEventListener('resize', manageEnforcer);
-		document.addEventListener('visibilitychange', () => {
-			if (document.visibilityState === 'visible') {
-				manageEnforcer();
+		document.body.addEventListener('touchstart', function (e) {
+			const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
+			if (!isFullscreen) {
+				goFullscreen();
 			}
-		});
-
-		// The very next touch/click forces fullscreen and unblocks the app
-		function handleEnforcerTap(e) {
-			goFullscreen();
-			// Instantly hide the enforcer so the app is never accidentally blocked, 
-			// even if the browser doesn't properly fire a 'fullscreenchange' event.
-			enforcer.style.display = 'none';
-		}
-
-		enforcer.addEventListener('click', handleEnforcerTap);
-		enforcer.addEventListener('touchstart', handleEnforcerTap, { passive: true });
+		}, { passive: true, capture: true });
 	</script>
 </body>
 
