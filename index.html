@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<title>LunddrenDev-Application</title>
 	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
 		body,
 		html {
 			margin: 0;
@@ -13,7 +15,8 @@
 			width: 100%;
 			height: 100%;
 			overflow: hidden;
-			background-color: #000;
+			background-color: #020617;
+			/* Very deep blue/black */
 		}
 
 		iframe {
@@ -31,44 +34,69 @@
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-color: #0f172a;
+			background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
 			color: #fff;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			font-family: 'Outfit', sans-serif;
 			z-index: 1000;
-			transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+			transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		/* Subtle moving background glow */
+		#start-overlay::before {
+			content: '';
+			position: absolute;
+			width: 60vh;
+			height: 60vh;
+			background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+			animation: pulseGlow 8s ease-in-out infinite alternate;
+			z-index: -1;
 		}
 
 		.brand-text {
-			font-size: 32px;
+			font-size: 38px;
 			font-weight: 600;
-			letter-spacing: 2px;
-			background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+			letter-spacing: 4px;
+			background: linear-gradient(90deg, #ffffff 0%, #93c5fd 50%, #ffffff 100%);
 			background-size: 200% auto;
 			color: transparent;
 			-webkit-background-clip: text;
 			background-clip: text;
-			animation: shine 2.5s linear infinite, slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			animation: shine 3s linear infinite, slideUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 			opacity: 0;
-			transform: translateY(20px);
+			transform: translateY(30px);
+			text-transform: uppercase;
 		}
 
-		.loader-line {
-			width: 0px;
-			height: 2px;
-			background: #3b82f6;
-			margin-top: 20px;
-			border-radius: 2px;
-			animation: loadLine 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-			animation-delay: 0.5s;
+		.subtitle {
+			font-size: 13px;
+			font-weight: 300;
+			letter-spacing: 8px;
+			color: #64748b;
+			margin-top: 16px;
+			opacity: 0;
+			animation: slideUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+		}
+
+		/* Minimalist circular spinner */
+		.spinner {
+			width: 40px;
+			height: 40px;
+			margin-top: 40px;
+			border: 2px solid rgba(59, 130, 246, 0.1);
+			border-top: 2px solid #3b82f6;
+			border-radius: 50%;
+			animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite, fadeIn 1s ease forwards 0.6s;
 			opacity: 0;
 		}
 
 		@keyframes shine {
-			to { background-position: 200% center; }
+			to {
+				background-position: 200% center;
+			}
 		}
 
 		@keyframes slideUpFade {
@@ -78,10 +106,39 @@
 			}
 		}
 
-		@keyframes loadLine {
-			0% { width: 0px; opacity: 0; }
-			20% { opacity: 1; }
-			100% { width: 150px; opacity: 1; }
+		@keyframes fadeIn {
+			to {
+				opacity: 1;
+			}
+		}
+
+		@keyframes pulseGlow {
+			0% {
+				transform: scale(1);
+				opacity: 0.5;
+			}
+
+			100% {
+				transform: scale(1.5);
+				opacity: 0.8;
+			}
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* The hide animation class */
+		.hide-anim {
+			opacity: 0 !important;
+			transform: scale(1.05) !important;
+			pointer-events: none;
 		}
 	</style>
 </head>
@@ -89,7 +146,8 @@
 <body>
 	<div id="start-overlay">
 		<div class="brand-text">LunddrenDev-Applications</div>
-		<div class="loader-line"></div>
+		<div class="subtitle">INITIALIZING SECURE ENVIRONMENT</div>
+		<div class="spinner"></div>
 	</div>
 	<iframe
 		src="https://script.google.com/macros/s/AKfycbyMvCBInKGUXvuMqus3-V0gEdxi3TL4UTK0MwAr0EUozh7keMZX0jc0qyQe1XkYCxOl/exec"
@@ -109,44 +167,89 @@
 		}
 
 		function hideOverlay() {
-			overlay.style.opacity = '0';
+			overlay.classList.add('hide-anim');
 			setTimeout(() => {
 				overlay.style.display = 'none';
-			}, 800); // Wait for the transition to finish
+				overlay.classList.remove('hide-anim');
+			}, 1200); // Wait for the transition to finish
 		}
 
 		function showOverlay() {
 			overlay.style.display = 'flex';
+			// Slight delay so display:flex applies before removing the class
 			setTimeout(() => {
 				overlay.style.opacity = '1';
 			}, 10);
 		}
 
-		// Automatically hide the cinematic loading screen after 3.5 seconds
-		setTimeout(() => {
-			hideOverlay();
-		}, 3500);
+		// Logic to skip the cinematic loading screen if they opened the app recently (within 2 hours)
+		const lastLoad = localStorage.getItem('lunddrenLastLoad');
+		const now = Date.now();
+		const twoHours = 2 * 60 * 60 * 1000;
+
+		if (lastLoad && (now - parseInt(lastLoad, 10)) < twoHours) {
+			// Skip the loading animation entirely
+			overlay.style.display = 'none';
+		} else {
+			// First time loading (or expired), show animation and set timestamp
+			localStorage.setItem('lunddrenLastLoad', now.toString());
+			// Automatically hide the cinematic loading screen after 3.5 seconds
+			setTimeout(() => {
+				hideOverlay();
+			}, 3500);
+		}
 
 		// If the user clicks while the loading screen is up, force fullscreen early
-		overlay.addEventListener('click', function() {
+		overlay.addEventListener('click', function () {
 			goFullscreen();
 			hideOverlay();
 		});
 
-		// Fallback: Catch any rogue clicks/touches on the wrapper body to force fullscreen later
-		document.body.addEventListener('click', function(e) {
+		// --- MOBILE FULLSCREEN ENFORCER ---
+		const enforcer = document.createElement('div');
+		enforcer.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; z-index:999; background:transparent; display:none;';
+		document.body.appendChild(enforcer);
+
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+		function manageEnforcer() {
 			const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
-			if (!isFullscreen) {
-				goFullscreen();
+			if (isMobile) {
+				if (!isFullscreen) {
+					// Block touches to iframe and force them to hit the enforcer first
+					enforcer.style.display = 'block';
+				} else {
+					// Unblock, allow interacting with the app
+					enforcer.style.display = 'none';
+				}
 			}
-		}, true);
-		
-		document.body.addEventListener('touchstart', function(e) {
-			const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
-			if (!isFullscreen) {
-				goFullscreen();
+		}
+
+		// Initial setup
+		manageEnforcer();
+
+		// Whenever they enter or exit fullscreen, or the window resizes, check the state
+		document.addEventListener('fullscreenchange', manageEnforcer);
+		document.addEventListener('webkitfullscreenchange', manageEnforcer);
+		document.addEventListener('mozfullscreenchange', manageEnforcer);
+		document.addEventListener('MSFullscreenChange', manageEnforcer);
+		window.addEventListener('resize', manageEnforcer);
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'visible') {
+				manageEnforcer();
 			}
-		}, { passive: true, capture: true });
+		});
+
+		// The very next touch/click forces fullscreen and unblocks the app
+		function handleEnforcerTap(e) {
+			goFullscreen();
+			// Instantly hide the enforcer so the app is never accidentally blocked, 
+			// even if the browser doesn't properly fire a 'fullscreenchange' event.
+			enforcer.style.display = 'none';
+		}
+
+		enforcer.addEventListener('click', handleEnforcerTap);
+		enforcer.addEventListener('touchstart', handleEnforcerTap, { passive: true });
 	</script>
 </body>
 
